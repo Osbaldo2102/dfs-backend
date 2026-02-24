@@ -1,14 +1,33 @@
 const express = require('express');
 const cors = require('cors'); 
-const path = require('path'); 
-
+const { pool } = require('./src/db');
+const { sign, authMiddleware } = require('./src/auth');
 const productosRouter = require('./src/routes/productos.routes');
+const path = require('path');
 
+const PORT = process.env.PORT || 4000;
 const app = express();
+
+const allowed = [
+    'http://localhost:4000',
+    'http://localhost:4001',
+]
+
+app.use(cors({
+    origin: function(origin, cb) {
+        if(!origin) return cb(null, true); // Postman
+        if(allowed.includes(origin)) return cb(null, true);
+        return cb(new Error('CORS no permitido: ' + origin));
+    }
+}));
+
+const { error } = require('console');
+
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(cors());
+
 app.use(express.json());
 
 app.get('/health', (req, res) => {
@@ -17,6 +36,22 @@ app.get('/health', (req, res) => {
 
 app.use('/productos', productosRouter);
 
-app.listen(3000, () => {
-    console.log("Servidor listo en http://localhost:3000");
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+    
+    if (email !== 'admin@test.com' || password !== '1234') {
+        return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    const token = sign({ email, role: 'admin' });
+
+    return res.json({ token });
+});
+
+app.get('/privado', authMiddleware, (req, res) => {
+    return res.json({})
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor listo en el puerto ${PORT}`);
 });
