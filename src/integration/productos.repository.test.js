@@ -1,25 +1,21 @@
 const { ProductosRepository } = require('../repositories/productos.repository');
+const { pool } = require('../db');
 
-const pool = require('../db'); 
+describe('Integracion: ProductosRepository con DB real', () => {
+  const repo = new ProductosRepository();
+  let productoId;
 
-const repo = new ProductosRepository();
-let productoId;
+  test('Create guarda en DB real', async () => {
+    const created = await repo.create('Gabinete', 2000);
+    productoId = created.id;
 
-test('crea un producto', async () => {
-    const resultado = await repo.create({ nombre: 'Cobija', precio: 200 });
-    
-    productoId = resultado.id; 
-    
-    expect(resultado).toBeTruthy();
-    expect(resultado.nombre).toBe('Cobija');
-    
-    expect(Number(resultado.precio)).toBe(200); 
-});
+    expect(created).toBeTruthy();
+    expect(created.nombre).toBe('Gabinete');
+    expect(Number(created.precio)).toBeCloseTo(2000)
+  });
 
-afterAll(async () => {
-    if(pool && pool.end) {
-        await pool.end();
-    } else {
-        console.log('No pude cerrar la conexión: "pool" no está definido correctamente.');
-    }
+  afterAll(async () => {
+    await pool.query('delete from productos where id = $1', [productoId])
+    await pool.end();
+  })
 });

@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors'); 
-const { pool } = require('./src/db');
+const pool = require('./src/db');
 const { sign, authMiddleware } = require('./src/auth');
 const productosRouter = require('./src/routes/productos.routes');
 const path = require('path');
@@ -21,7 +21,6 @@ app.use(cors({
     }
 }));
 
-const { error } = require('console');
 
 
 
@@ -49,7 +48,7 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/privado', authMiddleware, (req, res) => {
-    return res.json({})
+    return res.json({ message: 'Acceso concedido a ruta privada', user: req.user });
 });
 
 app.listen(PORT, () => {
