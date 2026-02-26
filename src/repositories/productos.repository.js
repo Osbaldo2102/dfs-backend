@@ -59,6 +59,24 @@ class ProductosRepository {
 
     return result.rows[0] || null;
   }
-}
 
-module.exports = { ProductosRepository }
+  async getAllActivePaginated(page, limit) {
+    const offset = (page - 1) * limit;
+
+    const queryData = `
+      SELECT id, nombre, precio 
+      FROM productos 
+      WHERE activo = true 
+      LIMIT $1 OFFSET $2;
+    `;
+    const resultData = await pool.query(queryData, [limit, offset]);
+
+    const queryCount = 'SELECT COUNT(*) FROM productos WHERE activo = true;';
+    const resultCount = await pool.query(queryCount);
+    const total = parseInt(resultCount.rows[0].count);
+
+    return { 
+      data: resultData.rows, 
+      total: total 
+    };
+    }   
