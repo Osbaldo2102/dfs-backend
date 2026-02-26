@@ -1,5 +1,5 @@
-const { ProductosRepository } = require('../repositories/productos.repository.js');
-const { validarProducto  }= require('../domain/productos.rules.js')
+const { ProductosRepository } = require('../repositories/productos.repository');
+const { validarProducto  }= require('../domain/productos.rules')
 
 const repo = new ProductosRepository();
 
