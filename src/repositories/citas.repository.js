@@ -65,6 +65,17 @@ class CitasRepository {
         const result = await pool.query(query, [fecha, hora, 'cancelada']);
         return result.rows.length === 0; // true si está disponible
     }
+
+    // 6. Obtener horas ocupadas de un día (Para el generador de horarios)
+async findCitasByFecha(fecha) {
+    const query = `
+        SELECT hora 
+        FROM citas 
+        WHERE fecha = $1 AND estado != 'cancelada';
+    `;
+    const result = await pool.query(query, [fecha]);
+    return result.rows; 
+}
 }
 
 module.exports = { CitasRepository };

@@ -55,7 +55,9 @@ async function obtenerHorariosDisponibles(req, res) {
     const citasExistentes = await repo.findCitasByFecha(fecha); 
     
     // Mapeamos solo las horas ocupadas: ["10:00", "14:30", ...]
-    const horasOcupadas = citasExistentes.map(c => c.hora.substring(0, 5));
+    const horasOcupadas = citasExistentes.map(c => {
+    return c.hora ? c.hora.toString().substring(0, 5) : "";
+});
 
     // 3. Filtramos: Solo dejamos las horas que NO están ocupadas
     const disponibles = todosLosHorarios.filter(hora => !horasOcupadas.includes(hora));
