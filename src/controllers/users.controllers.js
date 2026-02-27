@@ -10,7 +10,8 @@ async function loginUser(req, res){
   const user = await repo.findByEmail(email);
 
   if (!user) {
-    return res.status(401).json({ error: 'Credenciales incorrectas' });
+    console.log('LOG: El email no existe en la tabla users');
+    return res.status(401).json({ error: 'LOG: El email no existe en la tabla users' });
   }
 
   const ok = await bcrypt.compare(password, user.password_hash);
