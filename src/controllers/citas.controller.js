@@ -68,4 +68,4 @@ async function obtenerHorariosDisponibles(req, res) {
   }
 }
 
-module.exports = { agendarCita, obtenerCitas, actualizarEstadoCita };
+module.exports = { agendarCita, obtenerCitas, actualizarEstadoCita, obtenerHorariosDisponibles };
