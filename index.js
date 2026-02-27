@@ -10,6 +10,10 @@ const { getExchangeRate } = require('./src/services/external.service');
 const PORT = process.env.PORT || 4000;
 const app = express();
 
+app.set('trust proxy', 1); 
+
+app.use(express.json());
+
 // Agregué el puerto 3000 que es el que usa Next.js por defecto
 const allowed = [
     'http://localhost:4000',

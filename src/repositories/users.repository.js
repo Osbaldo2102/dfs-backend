@@ -1,4 +1,4 @@
-const { pool } = require('../db');
+const pool  = require('../db');
 
 class UsersRepository {
   async findByEmail(email) {
@@ -18,7 +18,7 @@ class UsersRepository {
   }
 
   async findById(id) {
-    const r = pool.query(
+    const r = await pool.query(
       'select id, email, role from users where id = $1', [id]
     );
     return r.rows[0] || null;
