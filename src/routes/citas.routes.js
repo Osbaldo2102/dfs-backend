@@ -3,6 +3,8 @@ const router = express.Router();
 const citasController = require('../controllers/citas.controller');
 const { authMiddleware } = require('../auth');
 
+router.get('/disponibles', citasController.obtenerHorariosDisponibles);
+
 // Ruta para que los clientes agenden (Pública)
 router.post('/', citasController.agendarCita);
 router.get('/', authMiddleware, citasController.obtenerCitas);
