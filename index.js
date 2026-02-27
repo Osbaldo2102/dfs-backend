@@ -5,6 +5,7 @@ const pool = require('./src/db');
 const { sign, authMiddleware } = require('./src/auth');
 const { router: productosRouter} = require('./src/routes/productos.routes');
 const { router: userRouter } = require('./src/routes/users.routes');
+const { router: citasRouter } = require('./src/routes/citas.routes'); // 1. IMPORTAMOS CITAS
 const { getExchangeRate } = require('./src/services/external.service'); 
 
 const PORT = process.env.PORT || 4000;
@@ -14,11 +15,11 @@ app.set('trust proxy', 1);
 
 app.use(express.json());
 
-// Agregué el puerto 3000 que es el que usa Next.js por defecto
 const allowed = [
     'http://localhost:4000',
     'http://localhost:4001',
     'http://localhost:3000', 
+    'https://dfs-front-flax.vercel.app',
 ]
 
 const limiter = rateLimit({
@@ -36,8 +37,6 @@ app.use(cors({
     }
 }));
 
-app.use(express.json());
-
 // Logs
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
@@ -45,20 +44,22 @@ app.use((req, res, next) => {
 });
 
 // RUTAS PUBLICAS
-app.get('/', (req, res) => res.send('API OK'));
+app.get('/', (req, res) => res.send('API SWIFTCUT OK 💈'));
 
-// API EXTERNA (Con manejo de errores básico)
+// API EXTERNA
 app.get('/api/externa/precio-dolar', async (req, res, next) => {
   try {
     const rate = await getExchangeRate();
     res.json({ moneda: 'MXN', precio: rate });
   } catch (error) {
-    next(error); // Esto lo envía al errorHandler
+    next(error);
   }
 });
 
+// --- REGISTRO DE RUTAS ---
 app.use('/productos', productosRouter);
 app.use('/users', userRouter);
+app.use('/citas', citasRouter); // 2. CONECTAMOS LA RUTA DE CITAS
 
 // RUTA PRIVADA
 app.get('/privado', authMiddleware, (req, res) => {
@@ -89,5 +90,5 @@ const { errorHandler } = require('./src/middlewares/error.middleware');
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Servidor Corriendo en el puerto ${PORT}, y todo funciona bien!!`);
+  console.log(`Servidor Corriendo en puerto ${PORT}. ¡SwiftCut está en línea! 💈`);
 });
