@@ -4,7 +4,7 @@ const rateLimit = require('express-rate-limit');
 const pool = require('./src/db');
 const { sign, authMiddleware } = require('./src/auth');
 const { router: productosRouter} = require('./src/routes/productos.routes');
-const { router: userRouter } = require('./src/routes/user.routes');
+const { router: userRouter } = require('./src/routes/users.routes');
 const { getExchangeRate } = require('./src/services/external.service'); 
 
 const PORT = process.env.PORT || 4000;
