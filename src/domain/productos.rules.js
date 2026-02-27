@@ -1,17 +1,29 @@
-function validarProducto({ nombre, precio, marca, categoria }) {
+function validarProducto({ nombre, precio }) {
     
-    if (!nombre || typeof nombre !== 'string') {
-        return { ok: false, error: 'Nombre es obligatorio y debe ser texto' };
+    // Validamos que el nombre del servicio exista y sea real
+    if (!nombre || typeof nombre !== 'string' || nombre.trim().length < 3) {
+        return { 
+            ok: false, 
+            error: 'El nombre del servicio es obligatorio (mínimo 3 caracteres)' 
+        };
     }
 
+    // Validamos que el precio sea un número válido para cobrar
     const p = Number(precio);
-    if (!Number.isFinite(p) || p <= 0) {
-        return { ok: false, error: 'Precio debe ser un número positivo' };
+    if (isNaN(p) || p <= 0) {
+        return { 
+            ok: false, 
+            error: 'El precio debe ser un número mayor a 0' 
+        };
     }
 
+    // Devolvemos solo la data limpia que la base de datos de SwiftCut espera
     return { 
         ok: true, 
-        data: { nombre, precio: p, marca, categoria } 
+        data: { 
+            nombre: nombre.trim(), 
+            precio: p 
+        } 
     };
 }
 

@@ -1,40 +1,46 @@
 const { ProductosRepository } = require('../repositories/productos.repository');
+// OJO: Asegúrate de que validarProducto no pida campos viejos (marca, stock, etc.)
 const { validarProducto } = require('../domain/productos.rules');
 
 const repo = new ProductosRepository();
 
 async function getAll(req, res) {
-  const productos = await repo.getAll();
-  return res.json(productos);
+  try {
+    const productos = await repo.getAll();
+    return res.json(productos);
+  } catch (error) {
+    return res.status(500).json({ error: 'Error al obtener servicios' });
+  }
 }
 
 async function getAllVisible(req, res) {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
-  const { data, total } = await repo.getAllActivePaginated(page, limit);
+    const { data, total } = await repo.getAllActivePaginated(page, limit);
 
-  return res.json({
-    ok: true,
-    data,
-    pagination: {
-      page,
-      limit,
-      totalItems: total,
-      totalPages: Math.ceil(total / limit)
-    }
-  });
+    return res.json({
+      ok: true,
+      data, // Aquí viajan tus cortes de pelo y barbas
+      pagination: {
+        page,
+        limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: 'Error en la paginación' });
+  }
 }
 
 async function search(req, res) {
-  console.log(Object.keys(req.query));
-  const nombre = req.query.nombre;
-  const precio = req.query.precio ?? null;
-  const data = { nombre, precio };
-  const resultados = await repo.buscar(data);
+  const { nombre, precio } = req.query;
+  const resultados = await repo.buscar({ nombre, precio });
 
   if (!resultados || resultados.length === 0) {
-    return res.status(404).json({ error: 'no encontrado' });
+    return res.status(404).json({ error: 'Servicio no encontrado' });
   }
   return res.json(resultados);
 }
@@ -44,7 +50,7 @@ async function getById(req, res) {
   const producto = await repo.getById(id);
 
   if (!producto) {
-    return res.status(404).json({ error: 'Producto no encontrado' });
+    return res.status(404).json({ error: 'Servicio no encontrado' });
   }
 
   return res.json(producto);
@@ -52,10 +58,12 @@ async function getById(req, res) {
 
 async function create(req, res) {
   const { nombre, precio } = req.body;
+  
+  // Si validarProducto te da problemas, puedes comentar esta línea y validar manual
   const data = validarProducto({ nombre, precio });
 
   if (data.error) {
-    return res.status(400).json(data.error);
+    return res.status(400).json({ error: 'Datos de servicio inválidos', detalles: data.error });
   }
 
   const nuevo = await repo.create(data.data.nombre, data.data.precio);
@@ -66,22 +74,19 @@ async function update(req, res) {
   const id = Number(req.params.id);
   const { nombre, precio } = req.body;
 
-  const payload = {
-    nombre: nombre !== undefined ? nombre : undefined,
-    precio: precio !== undefined ? precio : undefined
-  };
+  // Solo actualizamos lo que viene en el body
+  const payload = {};
+  if (nombre !== undefined) payload.nombre = nombre;
+  if (precio !== undefined) payload.precio = precio;
 
-  if (
-    payload.precio !== undefined &&
-    (!Number.isFinite(payload.precio) || payload.precio <= 0)
-  ) {
-    return res.status(400).json({ error: 'precio inválido' });
+  if (payload.precio !== undefined && (isNaN(payload.precio) || payload.precio <= 0)) {
+    return res.status(400).json({ error: 'Precio inválido' });
   }
 
   const actualizado = await repo.update(id, payload);
 
   if (!actualizado) {
-    return res.status(404).json({ error: 'No encontrado' });
+    return res.status(404).json({ error: 'Servicio no encontrado' });
   }
 
   return res.json(actualizado);
@@ -92,10 +97,10 @@ async function remove(req, res) {
   const ok = await repo.delete(id);
 
   if (!ok) {
-    return res.status(404).json({ error: 'No encontrado' });
+    return res.status(404).json({ error: 'Servicio no encontrado' });
   }
 
-  return res.status(204).send();
+  return res.status(204).send(); // Eliminación exitosa
 }
 
 module.exports = { getAll, getAllVisible, getById, search, create, update, remove };
