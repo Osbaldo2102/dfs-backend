@@ -56,6 +56,16 @@ app.get('/api/externa/precio-dolar', async (req, res, next) => {
   }
 });
 
+// --- RUTAS DE APOYO ---
+app.get('/servicios', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, nombre, precio FROM productos');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener servicios' });
+  }
+});
+
 // --- REGISTRO DE RUTAS ---
 app.use('/productos', productosRouter);
 app.use('/users', userRouter);
